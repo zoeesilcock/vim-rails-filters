@@ -21,7 +21,7 @@ function! s:get_current_method()
 
     if len(matches) > 2
       let indentation = matches[1]
-      let end_line = search(indentation . 'end$', 'ncW')
+      let end_line = search(indentation . 'end', 'ncW')
 
       if previous_method < end_line && next_method > end_line
         let method_name = matches[2]

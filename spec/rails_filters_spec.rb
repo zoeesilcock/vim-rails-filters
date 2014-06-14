@@ -37,4 +37,24 @@ describe "rails-filters.vim" do
       expect(get_current_method).to eq('method_with_params')
     end
   end
+
+  describe "get_filters_for" do
+    def get_filters_for(method)
+      vim.command("echo <SNR>#{@sid}_get_filters_for('#{method}')")
+    end
+
+    it "returns a list of methods" do
+      expect(get_filters_for('index')).to eq("['before_all', 'before_show', 'before_except']")
+    end
+  end
+
+  describe "extract_method_from_filter" do
+    def extract_method_from_filter(string)
+      vim.command("echo <SNR>#{@sid}_extract_method_from_filter('#{string}')")
+    end
+
+    it "understands symbols" do
+      expect(extract_method_from_filter('before_filter :think_before_you_talk')).to eq('think_before_you_talk')
+    end
+  end
 end

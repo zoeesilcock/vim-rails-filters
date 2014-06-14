@@ -2,6 +2,7 @@ class MyController < ApplicationController
 
   before_filter :before_all
   before_filter :before_show, only: [:show]
+  before_filter :before_except, except: [:index]
 
   def index
     # index content
@@ -19,6 +20,10 @@ class MyController < ApplicationController
 
   def before_show
     puts 'before show'
+  end
+
+  def before_except
+    puts 'before except'
   end
 
   def method_with_params(foo, bar)

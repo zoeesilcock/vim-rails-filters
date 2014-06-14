@@ -12,22 +12,24 @@ command! RailsFilters call s:rails_filters()
 
 function! s:get_current_method()
   let method_name = ''
-  let method_pattern = '^\(.*\)def \(.\+\)(\='
-  let previous_method = search(method_pattern, 'bncW')
-  let next_method = search(method_pattern, 'nW')
+  let method_pattern = '^.*def \(.\+\)'
+  let original_pos = getpos('.')
+  let target_line = original_pos[1]
 
-  if previous_method != 0
-    let matches = matchlist(getline(previous_method), method_pattern)
-
-    if len(matches) > 2
-      let indentation = matches[1]
-      let end_line = search(indentation . 'end', 'ncW')
-
-      if previous_method < end_line && next_method > end_line
-        let method_name = matches[2]
-      endif
-    endif
+  if match(getline(target_line), method_pattern) != -1
+    let target_line += 1
   endif
+
+  call cursor(target_line, 1)
+
+  let def_line = searchpair('def', '', 'end', 'bnW')
+  let matches = matchlist(getline(def_line), method_pattern)
+
+  if len(matches) > 1
+    let method_name = matches[1]
+  end
+
+  call setpos('.', original_pos)
 
   return method_name
 endfunction

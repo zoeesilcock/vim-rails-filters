@@ -12,7 +12,7 @@ command! RailsFilters call s:rails_filters()
 
 function! s:get_current_method()
   let method_name = ''
-  let method_pattern = '^.*def \(.\+\)'
+  let method_pattern = '^.*def \([^(]\+\)'
   let original_pos = getpos('.')
   let target_line = original_pos[1]
 

@@ -21,4 +21,7 @@ class MyController < ApplicationController
     puts 'before show'
   end
 
+  def method_with_params(foo, bar)
+  end
+
 end

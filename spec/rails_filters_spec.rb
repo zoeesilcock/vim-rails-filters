@@ -30,5 +30,11 @@ describe "rails-filters.vim" do
 
       expect(get_current_method).to eq('index')
     end
+
+    it "can handle methods with parameters" do
+      vim.search 'def method_with_params'
+
+      expect(get_current_method).to eq('method_with_params')
+    end
   end
 end

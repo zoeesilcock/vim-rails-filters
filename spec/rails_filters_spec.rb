@@ -83,7 +83,21 @@ describe "rails-filters.vim" do
       list = build_quickfix_list(filter_lines)
 
       text = list.match(/'text': '([^']*)'/)[1]
-      expect(text).to eq("  before_filter :before_all")
+      expect(text).to eq("before_filter :before_all")
+    end
+  end
+
+  describe "strip" do
+    def strip(string)
+      vim.command("echo <SNR>#{@sid}_strip('#{string}')")
+    end
+
+    it "removes spaces before content" do
+      expect(strip('  I am indented')).to eq('I am indented')
+    end
+
+    it "removes spaces after content" do
+      expect(strip('I am sloppy ')).to eq('I am sloppy')
     end
   end
 end

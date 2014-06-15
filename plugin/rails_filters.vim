@@ -1,12 +1,8 @@
 function! s:rails_filters()
-  " Identify which method we are in now.
   let method = s:get_current_method()
 
-  " Search for filters in the file.
   let filter_lines = s:get_filters_for(method)
-  " Take only and except into account.
-  " Extract information about each filter.
-  " Display the information in a quick fix window.
+
   call setqflist(s:build_quickfix_list(filter_lines), 'r')
   cwindow
 endfunction
@@ -80,11 +76,15 @@ function! s:build_quickfix_list(filter_lines)
     let item = {
           \ 'lnum': filter.method_line,
           \ 'bufnr': bufnr('%'),
-          \ 'text': getline(filter.filter_line)
+          \ 'text': s:strip(getline(filter.filter_line))
           \ }
 
     call add(quickfix_list, item)
   endfor
 
   return quickfix_list
+endfunction
+
+function! s:strip(input_string)
+  return substitute(a:input_string, '^\s*\(.\{-}\)\s*$', '\1', '')
 endfunction

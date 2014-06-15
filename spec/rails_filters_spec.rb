@@ -43,8 +43,8 @@ describe "rails-filters.vim" do
       vim.command("echo <SNR>#{@sid}_get_filters_for('#{method}')")
     end
 
-    it "returns a list of methods" do
-      expect(get_filters_for('index')).to eq("['before_all', 'before_show', 'before_except']")
+    it "returns a list of line numbers" do
+      expect(get_filters_for('index')).to eq("[{'filter_line': 3, 'method_line': 17}, {'filter_line': 4, 'method_line': 21}, {'filter_line': 5, 'method_line': 25}]")
     end
   end
 
@@ -59,29 +59,31 @@ describe "rails-filters.vim" do
   end
 
   describe "build_quickfix_list" do
-    def build_quickfix_list(methods)
-      vim.command("echo <SNR>#{@sid}_build_quickfix_list(#{methods})")
+    let(:filter_lines) { "[{'filter_line': 3, 'method_line': 17}]" }
+
+    def build_quickfix_list(filter_lines)
+      vim.command("echo <SNR>#{@sid}_build_quickfix_list(#{filter_lines})")
     end
 
     it "contains the right line number" do
-      list = build_quickfix_list("['before_all']")
+      list = build_quickfix_list(filter_lines)
 
       line_number = list.match(/'lnum': (\d+)/)[1].to_i
       expect(line_number).to eq(17)
     end
 
     it "contains the buffer number" do
-      list = build_quickfix_list("['before_all']")
+      list = build_quickfix_list(filter_lines)
 
       buffer_number = list.match(/'bufnr': (\d+)/)[1].to_i
       expect(buffer_number).to be_an(Integer)
     end
 
     it "contains the method declaration as th text" do
-      list = build_quickfix_list("['before_all']")
+      list = build_quickfix_list(filter_lines)
 
       text = list.match(/'text': '([^']*)'/)[1]
-      expect(text).to eq('  def before_all')
+      expect(text).to eq("  before_filter :before_all")
     end
   end
 end

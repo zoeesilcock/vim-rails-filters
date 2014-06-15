@@ -3,11 +3,11 @@ function! s:rails_filters()
   let method = s:get_current_method()
 
   " Search for filters in the file.
-  let filter_methods = s:get_filters_for(method)
+  let filter_lines = s:get_filters_for(method)
   " Take only and except into account.
   " Extract information about each filter.
   " Display the information in a quick fix window.
-  call setqflist(s:build_quickfix_list(filter_methods), 'r')
+  call setqflist(s:build_quickfix_list(filter_lines), 'r')
   cwindow
 endfunction
 
@@ -37,26 +37,28 @@ function! s:get_current_method()
   return method_name
 endfunction
 
-function! s:get_filters_for(method)
+function! s:get_filters_for(method_name)
   let original_pos = getpos('.')
   let filter_pattern = '^.*\(\(before_\|after_\|around_\)\(filter\|action\)\)'
 
   call cursor(1, 1)
 
   let line = -1
-  let methods = []
+  let filters = []
   while line != 0
     let line = search(filter_pattern, 'W')
     let method = s:extract_method_from_filter(getline(line))
 
     if len(method) > 0
-      call add(methods, method)
+      let method_line = search('^.*def ' . method, 'nW')
+
+      call add(filters, {'filter_line': line, 'method_line': method_line})
     endif
   endwhile
 
   call setpos('.', original_pos)
 
-  return methods
+  return filters
 endfunction
 
 function! s:extract_method_from_filter(input)
@@ -72,19 +74,17 @@ function! s:extract_method_from_filter(input)
   return method
 endfunction
 
-function! s:build_quickfix_list(methods)
+function! s:build_quickfix_list(filter_lines)
   let quickfix_list = []
-  let original_pos = getpos('.')
+  for filter in a:filter_lines
+    let item = {
+          \ 'lnum': filter.method_line,
+          \ 'bufnr': bufnr('%'),
+          \ 'text': getline(filter.filter_line)
+          \ }
 
-  for m in a:methods
-    call cursor(1, 1)
-    let line = search('^.*def ' . m, 'W')
-
-    if line != 0
-      call add(quickfix_list, {'lnum': line, 'bufnr': bufnr('%'), 'text': getline(line)})
-    endif
+    call add(quickfix_list, item)
   endfor
 
-  call setpos('.', original_pos)
   return quickfix_list
 endfunction

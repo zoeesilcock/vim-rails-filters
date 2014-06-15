@@ -57,4 +57,31 @@ describe "rails-filters.vim" do
       expect(extract_method_from_filter('before_filter :think_before_you_talk')).to eq('think_before_you_talk')
     end
   end
+
+  describe "build_quickfix_list" do
+    def build_quickfix_list(methods)
+      vim.command("echo <SNR>#{@sid}_build_quickfix_list(#{methods})")
+    end
+
+    it "contains the right line number" do
+      list = build_quickfix_list("['before_all']")
+
+      line_number = list.match(/'lnum': (\d+)/)[1].to_i
+      expect(line_number).to eq(17)
+    end
+
+    it "contains the buffer number" do
+      list = build_quickfix_list("['before_all']")
+
+      buffer_number = list.match(/'bufnr': (\d+)/)[1].to_i
+      expect(buffer_number).to be_an(Integer)
+    end
+
+    it "contains the method declaration as th text" do
+      list = build_quickfix_list("['before_all']")
+
+      text = list.match(/'text': '([^']*)'/)[1]
+      expect(text).to eq('  def before_all')
+    end
+  end
 end

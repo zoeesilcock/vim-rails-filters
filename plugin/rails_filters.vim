@@ -3,10 +3,12 @@ function! s:rails_filters()
   let method = s:get_current_method()
 
   " Search for filters in the file.
-  echo s:get_filters_for(method)
+  let filter_methods = s:get_filters_for(method)
   " Take only and except into account.
   " Extract information about each filter.
   " Display the information in a quick fix window.
+  call setqflist(s:build_quickfix_list(filter_methods), 'r')
+  cwindow
 endfunction
 
 command! RailsFilters call s:rails_filters()
@@ -68,4 +70,21 @@ function! s:extract_method_from_filter(input)
   endif
 
   return method
+endfunction
+
+function! s:build_quickfix_list(methods)
+  let quickfix_list = []
+  let original_pos = getpos('.')
+
+  for m in a:methods
+    call cursor(1, 1)
+    let line = search('^.*def ' . m, 'W')
+
+    if line != 0
+      call add(quickfix_list, {'lnum': line, 'bufnr': bufnr('%'), 'text': getline(line)})
+    endif
+  endfor
+
+  call setpos('.', original_pos)
+  return quickfix_list
 endfunction
